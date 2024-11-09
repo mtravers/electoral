@@ -10,10 +10,11 @@
   {:$schema "https://vega.github.io/schema/vega-lite/v5.json",
    :width 750,
    :height 450,
-   :data {:url  "data/counties2020.csv",},
+   :data {:url  "data/counties.csv",},
    :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}]
    :transform
    [
+    {:filter "datum.year == year"}
     {:lookup "county_fips",
      :from {:data {:url "data/us-10m.json"  :format {:type "topojson", :feature "counties"}},
             :key "id"}
@@ -25,7 +26,8 @@
    :encoding {:shape {:field "geo" :type "geojson"}
               :color {:field "demf" 
                       :type "quantitative"
-                      :scale {:scheme "redblue"}}
+                      :scale {:scheme "redblue"
+                              :domain [0,1]}}
               }})
 
 (def raw-data (csv/read-csv-file-maps "/opt/mt/repos/electoral/data/countypres_2000-2020.csv"))
@@ -40,6 +42,7 @@
     (map (fn [group] (assoc (first group) :candidatevotes (reduce + (map :candidatevotes group)))) d)
     (map #(select-keys % [:county_fips :totalvotes :candidatevotes
                           :county_name :state_po
+                          :year
                           ]) d)))
 
 (defn write-one-year
@@ -50,7 +53,9 @@
 
 (defn write-all-years
   []
-  (csv/write-csv-file-maps "/opt/mt/repos/electoral/data/counties.csv" (mapcat year-data years)))
+  (csv/write-csv-file-maps
+   "/opt/mt/repos/electoral/data/counties.csv"
+   (mapcat year-data years)))
 
 (defn expand-template
   "Template is a string containing {foo} elements, which get replaced by corresponding values from bindings. See tests for examples."

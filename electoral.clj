@@ -12,13 +12,12 @@
    :height 450,
    :data {:url "data/us-10m.json", :format {:type "topojson", :feature "counties"}},
    :transform
-   [#_ {:filter "datum.year == '2020' && datum.party == 'DEMOCRAT'"}
-    {:lookup "id", :from {:data {:url "data/counties2020.csv"}, :key "county_fips", :fields ["candidatevotes" "totalvotes"]}}
-    {:calculate  "(datum.candidatevotes / datum.totalvotes) - 0.5" :as "demf"}
+   [{:lookup "id", :from {:data {:url "data/counties2020.csv"}, :key "county_fips", :fields ["candidatevotes" "totalvotes" "county_name" "state_po"]}}
+    {:calculate  "(datum.candidatevotes / datum.totalvotes)" :as "demf"}
     ],
    :projection {:type "albersUsa"},
    :mark {:type "geoshape", :tooltip {:content "data"}}
-   :encoding {:color {:field "demf"
+   :encoding {:color {:field "demf" 
                       :type "quantitative"
                       :scale {:scheme "redblue"}}
               }})
@@ -33,12 +32,11 @@
     (group-by :county_fips d)
     (vals d)
     (map (fn [group] (assoc (first group) :candidatevotes (reduce + (map :candidatevotes group)))) d)
-    (map #(select-keys % [:county_fips :totalvotes :candidatevotes]) d)))
+    (map #(select-keys % [:county_fips :totalvotes :candidatevotes
+                          :county_name :state_po
+                          ]) d)))
 
 (csv/write-csv-file-maps "/opt/mt/repos/electoral/data/counties2020.csv" (year-data 2020))
-
-
-
 
 (defn expand-template
   "Template is a string containing {foo} elements, which get replaced by corresponding values from bindings. See tests for examples."
@@ -47,7 +45,6 @@
                      (map (fn [[match key]]
                             [match (or (bindings (key-fn key)) "")])))]
     (reduce (fn [s [match repl]]
-              (prn :xpnd match repl)
               (str/replace s (u/re-pattern-literal match) (java.util.regex.Matcher/quoteReplacement repl)))
             template matches)))
 

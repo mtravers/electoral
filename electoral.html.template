@@ -7,7 +7,7 @@
 
     <link rel="shortcut icon" href="https://vega.github.io/favicon.ico" />
 
-<title>Choropleth of Unemployment Rate per County | Vega-Lite</title>
+<title>Political Density</title>
 <meta name="generator" content="Jekyll v3.10.0" />
 <meta property="og:title" content="Choropleth of Unemployment Rate per County" />
 <meta property="og:locale" content="en_US" />
@@ -25,7 +25,7 @@
   <section class="examples">
     <div class="page-centered page-content">
   
-  <h1>Choropleth of Unemployment Rate per County</h1>
+  <h1>Political Density</h1>
    
 <div id="geo_choropleth"></div>
 

@@ -21,3 +21,11 @@ https://www.census.gov/data/datasets/time-series/demo/popest/2020s-counties-tota
 * Viz
 
 https://vega.github.io/vega-lite/examples/geo_choropleth.html
+
+
+* Run locally
+
+Compile 
+
+serve.sh 2203 . electoral.html
+

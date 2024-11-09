@@ -1,0 +1,23 @@
+* Idea: redo scatterstates:
+- new data
+- Vega + more interactivity 
+- Maybe a little more math about density as predictor
+- Integrate into Traverse? Hm hard to see how. Or Vaguely
+- Somehow make this into a narrative
+- deployment/complexity?
+  Should just do as a web page, but generate it from 
+
+* Data
+
+Election results (Wow this is handy)
+https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ
+
+County pop
+https://www.census.gov/data/datasets/time-series/demo/popest/2020s-counties-total.html
+
+
+** TODO make sure ackknowledges
+
+* Viz
+
+https://vega.github.io/vega-lite/examples/geo_choropleth.html

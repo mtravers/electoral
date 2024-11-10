@@ -6,49 +6,102 @@
             [voracious.formats.csv :as csv]
             ))
 
+;;; ⊥⊥⊤⊤ Vega spec ⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤
+
 (def spec
-  {:$schema "https://vega.github.io/schema/vega-lite/v5.json",
-   :width 750,
-   :height 450,
-   :data {:url  "data/counties.csv",},
+  {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
+
+   :data {:url "data/counties.csv"}
    :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}
             ;; TODO needs a better name. Clamp?
             {:name "winners" :value false :bind {:input "checkbox" }}
             ]
    :transform
-   [
-    {:filter {:param "year"}}
-    {:lookup "county_fips",
-     :from {:data {:url "data/us-10m.json"  :format {:type "topojson", :feature "counties"}},
+   [{:filter "datum.year == year"}
+    {:lookup "county_fips"
+     :from {:data {:url "data/us-10m.json"  :format {:type "topojson" :feature "counties"}}
             :key "id"}
      :as "geo"}
     {:calculate "(datum.candidatevotes / datum.totalvotes)" :as "demf"}
-    {:calculate "winners ? (datum.demf > 0.5 ? 0.9 : 0.1) : datum.demf" :as "demft"}
-    ],
-   :projection {:type "albersUsa"},
-   :layer [{:mark {:type "geoshape", :tooltip {:content "data"}}
-            :encoding {:shape {:field "geo" :type "geojson"}
-                       :color {:field "demft" 
-                               :type "quantitative"
-                               :scale {:scheme "redblue"
-                                       :domain [0,1]}}
-                       }
-            }
-           ;; This is too slow
-           #_
-           {:mark {:type "geoshape", :tooltip {:content "data"}}
-            :transform [{:filter "winners"}]
-            :encoding {:shape {:field "geo" :type "geojson"}
-                       :color {:field "demft" 
-                               :type "nominal"
-                               :scale {:range ["red", "blue"]}
-                               }}
-            }
+    {:calculate "100 * (winners ? (datum.demf > 0.5 ? 0.85 : 0.15) : datum.demf)" :as "demfp"}
+    {:calculate "datum.population / datum.area" :as "density"}
+    ]
+   :resolve {:scale {:color "independent"}}
+   :vconcat [
+             
+             ;; % dem 
 
-           ]
+             {:mark {:type "geoshape" :tooltip {:content "data"}} ;TODO trim down tooltip
+              :projection {:type "albersUsa"
+                           :precision 0.8 ;Work around Vega bug https://github.com/vega/vega-lite/issues/9321
+                           }
+              :width 750
+              :height 450
+              :encoding {:shape {:field "geo" :type "geojson"}
+                         :color {:field "demfp" 
+                                 :title "% dem"
+                                 :type "quantitative"
+                                 :scale {:scheme "redblue"
+                                         :domain [0 100]}}
+                         }
+              }
+
+             ;; Density
+             {:mark {:type "geoshape", :tooltip {:content "data"}}
+              :projection {:type "albersUsa"
+                           :precision 0.81
+                           }
+              :width 750
+              :height 450
+              :encoding {:shape {:field "geo" :type "geojson"}
+                         :color {:field "density" 
+                                 :type "quantitative"
+                                 :scale {:type :log}
+                                 }}
+              }
+
+
+             ;; This is too slow, use single layer and switch the data
+             #_
+             {:mark {:type "geoshape", :tooltip {:content "data"}}
+              :transform [{:filter "winners"}]
+              :encoding {:shape {:field "geo" :type "geojson"}
+                         :color {:field "demft" 
+                                 :type "nominal"
+                                 :scale {:range ["red", "blue"]}
+                                 }}
+              }
+             ]
    })
 
+(defn gen
+  []
+  (spit "/opt/mt/repos/electoral/electoral.html"
+   (expand-template
+   (slurp "/opt/mt/repos/electoral/electoral.html.template")
+   {:spec (json/write-str spec)}
+   :key-fn keyword)))
+
+;;; ⊥⊥⊤⊤ Data prep ⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤
+
 (def raw-data (csv/read-csv-file-maps "/opt/mt/repos/electoral/data/countypres_2000-2020.csv"))
+
+(def pop-data (->> "/opt/mt/repos/electoral/data/co-est2023-alldata.csv"
+                   csv/read-csv-file-maps
+                   (map #(assoc % :fips (+ (* (:STATE %) 1000) (:COUNTY %))))
+                   (map #(assoc % :population (:POPESTIMATE2020 %)))
+                   (map #(select-keys % [:fips :population]))
+                   (u/index-by :fips)))
+
+
+(def area-data (->> (csv/read-csv-file-maps
+                     "/opt/mt/repos/electoral/data/county_geo.tsv"
+                     :separator \tab)
+                    (map #(assoc % :fips (:GEOID %)))
+                    (map #(assoc % :area (:ALAND_SQMI %)))
+                    (map #(select-keys % [:fips :area]))
+                    (u/index-by :fips)))
+
 
 (defn year-data
   [year]
@@ -61,7 +114,9 @@
     (map #(select-keys % [:county_fips :totalvotes :candidatevotes
                           :county_name :state_po
                           :year
-                          ]) d)))
+                          ]) d)
+    (map #(assoc % :population (get-in pop-data [(:county_fips %) :population]) ) d)
+    (map #(assoc % :area (get-in area-data [(:county_fips %) :area]) ) d)))
 
 #_
 (defn write-one-year
@@ -86,15 +141,7 @@
               (str/replace s (u/re-pattern-literal match) (java.util.regex.Matcher/quoteReplacement repl)))
             template matches)))
 
-(defn gen
-  []
-  #_ (spit "/opt/mt/repos/electoral/spec.json" (json/write-str spec))
-  (spit "/opt/mt/repos/electoral/electoral.html"
-   (expand-template
-   (slurp "/opt/mt/repos/electoral/electoral.html.template")
-   {:spec (json/write-str spec)}
-   :key-fn keyword
-   )))
+
 
 
 

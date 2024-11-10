@@ -11,24 +11,42 @@
    :width 750,
    :height 450,
    :data {:url  "data/counties.csv",},
-   :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}]
+   :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}
+            ;; TODO needs a better name. Clamp?
+            {:name "winners" :value false :bind {:input "checkbox" }}
+            ]
    :transform
    [
-    {:filter "datum.year == year"}
+    {:filter {:param "year"}}
     {:lookup "county_fips",
      :from {:data {:url "data/us-10m.json"  :format {:type "topojson", :feature "counties"}},
             :key "id"}
      :as "geo"}
-    {:calculate  "(datum.candidatevotes / datum.totalvotes)" :as "demf"}
+    {:calculate "(datum.candidatevotes / datum.totalvotes)" :as "demf"}
+    {:calculate "winners ? (datum.demf > 0.5 ? 0.9 : 0.1) : datum.demf" :as "demft"}
     ],
    :projection {:type "albersUsa"},
-   :mark {:type "geoshape", :tooltip {:content "data"}}
-   :encoding {:shape {:field "geo" :type "geojson"}
-              :color {:field "demf" 
-                      :type "quantitative"
-                      :scale {:scheme "redblue"
-                              :domain [0,1]}}
-              }})
+   :layer [{:mark {:type "geoshape", :tooltip {:content "data"}}
+            :encoding {:shape {:field "geo" :type "geojson"}
+                       :color {:field "demft" 
+                               :type "quantitative"
+                               :scale {:scheme "redblue"
+                                       :domain [0,1]}}
+                       }
+            }
+           ;; This is too slow
+           #_
+           {:mark {:type "geoshape", :tooltip {:content "data"}}
+            :transform [{:filter "winners"}]
+            :encoding {:shape {:field "geo" :type "geojson"}
+                       :color {:field "demft" 
+                               :type "nominal"
+                               :scale {:range ["red", "blue"]}
+                               }}
+            }
+
+           ]
+   })
 
 (def raw-data (csv/read-csv-file-maps "/opt/mt/repos/electoral/data/countypres_2000-2020.csv"))
 
@@ -45,6 +63,7 @@
                           :year
                           ]) d)))
 
+#_
 (defn write-one-year
   [year]
   (csv/write-csv-file-maps "/opt/mt/repos/electoral/data/counties2020.csv" (year-data year)))

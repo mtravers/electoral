@@ -15,6 +15,10 @@ https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ
 County pop
 https://www.census.gov/data/datasets/time-series/demo/popest/2020s-counties-total.html
 
+County area:
+https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html
+
+
 
 ** TODO make sure ackknowledges
 
@@ -29,3 +33,7 @@ Compile
 
 serve.sh 2203 . electoral.html
 
+* Random
+
+THe hover here is pretty cool
+https://vega.github.io/vega-lite/examples/interactive_global_development.html

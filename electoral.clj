@@ -29,6 +29,28 @@
    :resolve {:scale {:color "independent"}}
    :vconcat [
              
+             {:mark {:type "circle" :filled true :tooltip {:content "data"}}
+              ;; :view {:fill "black"}
+              :height 400 :width 600
+              :encoding {:x {:field "density"
+                             :type :quantitative
+                             :axis {:grid false}
+                             :scale {:type :log}}
+                         :y {:field "demfp"
+                             :type :quantitative
+                             :axis {:grid false}
+                             }
+                         :size {:field "population" :type :quantitative}
+                         :stroke {:value "gray"}
+                         :strokeWidth {:value 0.5}
+                         :strokeOpacity {:value 0.5}
+                         :color {:field "demfp" 
+                                 :title "% dem"
+                                 :type "quantitative"
+                                 :scale {:scheme "redblue"
+                                         :domain [0 100]}}}}
+
+
              ;; % dem 
 
              {:mark {:type "geoshape" :tooltip {:content "data"}} ;TODO trim down tooltip

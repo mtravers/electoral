@@ -12,7 +12,7 @@
 <meta property="og:locale" content="en_US" />
 
     <script>
-      const BASEURL = window.location.origin;
+      const BASEURL = window.location.href;
     </script>
 
   </head>
@@ -40,6 +40,7 @@
   </section>
 </div>
 
+<a href="https://github.com/mtravers/electoral">Source</a>
 
     <script src="https://vega.github.io/vega-lite/static/bundle.js"></script>
   </body>

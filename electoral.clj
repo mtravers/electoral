@@ -173,7 +173,7 @@
 
 (defn gen
   []
-  (spit "/opt/mt/repos/electoral/electoral.html"
+  (spit "/opt/mt/repos/electoral/docs/index.html"
    (expand-template
    (slurp "/opt/mt/repos/electoral/electoral.html.template")
    {:spec (json/write-str spec)}

@@ -159,6 +159,18 @@
              ]
    })
 
+
+;;; Fixes bug in u/ version and changes defaults
+(defn expand-template
+  "Template is a string containing {foo} elements, which get replaced by corresponding values from bindings. See tests for examples."
+  [template bindings & {:keys [param-regex key-fn] :or {key-fn keyword param-regex u/double-braces}}]
+  (let [matches (->> (re-seq param-regex template) 
+                     (map (fn [[match key]]
+                            [match (or (bindings (key-fn key)) "")])))]
+    (reduce (fn [s [match repl]]
+              (str/replace s (u/re-pattern-literal match) (java.util.regex.Matcher/quoteReplacement repl)))
+            template matches)))
+
 (defn gen
   []
   (spit "/opt/mt/repos/electoral/electoral.html"
@@ -218,15 +230,7 @@
    "/opt/mt/repos/electoral/data/counties.csv"
    (mapcat year-data years)))
 
-(defn expand-template
-  "Template is a string containing {foo} elements, which get replaced by corresponding values from bindings. See tests for examples."
-  [template bindings & {:keys [param-regex key-fn] :or {key-fn keyword param-regex u/double-braces}}]
-  (let [matches (->> (re-seq param-regex template) 
-                     (map (fn [[match key]]
-                            [match (or (bindings (key-fn key)) "")])))]
-    (reduce (fn [s [match repl]]
-              (str/replace s (u/re-pattern-literal match) (java.util.regex.Matcher/quoteReplacement repl)))
-            template matches)))
+
 
 
 

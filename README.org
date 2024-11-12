@@ -1,0 +1,20 @@
+* Visualization of political voting patterns vs. population density.
+
+Update an older version: https://hyperphor.com/election/scatterstates.html
+
+* Status
+
+In-progress
+
+
+* Data sources
+
+Election results 
+https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ
+
+Population
+https://www.census.gov/data/datasets/time-series/demo/popest/2020s-counties-total.html
+
+Area
+https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html
+

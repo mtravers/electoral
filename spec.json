@@ -1,0 +1,108 @@
+{"$schema":"https:\/\/vega.github.io\/schema\/vega-lite\/v5.json",
+ "data":{"url":"data\/counties.csv"},
+ "params":
+ [{"name":"year",
+   "value":"2020",
+   "bind":{"input":"range", "min":2000, "max":2020, "step":4}},
+  {"name":"winners", "value":false, "bind":{"input":"checkbox"}},
+  {"name":"brush", "select":"interval", "encodings":["x", "y"]}],
+ "transform":
+ [{"filter":"datum.year == year"},
+  {"lookup":"county_fips",
+   "from":
+   {"data":
+    {"url":"data\/us-10m.json",
+     "format":{"type":"topojson", "feature":"counties"}},
+    "key":"id"},
+   "as":"geo"},
+  {"calculate":"100 * (datum.candidatevotes \/ datum.totalvotes)",
+   "as":"demp"},
+  {"calculate":"winners ? (datum.demp > 50 ? 85 : 15) : datum.demp",
+   "as":"dempc"},
+  {"calculate":"datum.population \/ datum.area", "as":"density"}],
+ "vconcat":
+ [{"hconcat":
+   [{"mark":{"type":"geoshape"},
+     "projection":{"type":"albersUsa", "precision":0.8},
+     "width":750,
+     "height":450,
+     "encoding":
+     {"shape":{"field":"geo", "type":"geojson"},
+      "color":
+      {"field":"dempc",
+       "title":"% dem",
+       "type":"quantitative",
+       "scale":
+       {"domain":[0, 100], "range":
+                           ["#DD1327", "#DDCAE0", "#1750E0"]}},
+      "stroke":
+      {"value":"gray",
+       "condition":
+       {"param":"brush", "value":"orange", "empty":false}},
+      "strokeWidth":
+      {"value":0.5,
+       "condition":{"param":"brush", "value":12, "empty":false}},
+      "strokeOpacity":{"value":0.5},
+      "tooltip":
+      [{"field":"county_name", "title":"county"},
+       {"field":"state_po", "title":"state"},
+       {"field":"population", "type":"quantitative"},
+       {"field":"density", "type":"quantitative"},
+       {"field":"dempc", "type":"quantitative", "title":"% dem"}]}},
+    {"mark":{"type":"circle", "filled":true},
+     "height":400,
+     "width":600,
+     "encoding":
+     {"x":
+      {"field":"density",
+       "type":"quantitative",
+       "axis":{"grid":false},
+       "scale":{"type":"log"}},
+      "y":
+      {"field":"demp", "type":"quantitative", "axis":{"grid":false}},
+      "size":
+      {"field":"population",
+       "type":"quantitative",
+       "scale":{"range":[15, 800]}},
+      "stroke":{"value":"gray"},
+      "strokeWidth":
+      {"value":0.5,
+       "condition":{"param":"brush", "empty":false, "value":12}},
+      "strokeOpacity":{"value":0.5},
+      "color":
+      {"field":"dempc",
+       "title":"% dem",
+       "type":"quantitative",
+       "scale":{"domain":[0, 100]}},
+      "tooltip":
+      [{"field":"county_name", "title":"county"},
+       {"field":"state_po", "title":"state"},
+       {"field":"population", "type":"quantitative"},
+       {"field":"density", "type":"quantitative"},
+       {"field":"dempc", "type":"quantitative", "title":"% dem"}]}}]},
+  {"mark":{"type":"circle"},
+   "width":750,
+   "height":450,
+   "encoding":
+   {"x":
+    {"field":"population",
+     "type":"quantitative",
+     "scale":{"type":"log"}},
+    "y":
+    {"field":"area", "type":"quantitative", "scale":{"type":"log"}},
+    "stroke":{"value":"gray"},
+    "strokeWidth":
+    {"value":0.5,
+     "condition":{"param":"brush", "empty":false, "value":12}},
+    "strokeOpacity":{"value":0.5},
+    "color":
+    {"field":"dempc",
+     "title":"% dem",
+     "type":"quantitative",
+     "scale":{"domain":[0, 100]}},
+    "tooltip":
+    [{"field":"county_name", "title":"county"},
+     {"field":"state_po", "title":"state"},
+     {"field":"population", "type":"quantitative"},
+     {"field":"density", "type":"quantitative"},
+     {"field":"dempc", "type":"quantitative", "title":"% dem"}]}}]}

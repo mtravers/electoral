@@ -15,6 +15,7 @@
    :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}
             ;; TODO needs a better name. Clamp?
             {:name "winners" :value false :bind {:input "checkbox" }}
+            {:name "brush" :select "interval" :encodings ["x" "y"]}
             ]
    :transform
    [{:filter "datum.year == year"}
@@ -22,53 +23,84 @@
      :from {:data {:url "data/us-10m.json"  :format {:type "topojson" :feature "counties"}}
             :key "id"}
      :as "geo"}
-    {:calculate "(datum.candidatevotes / datum.totalvotes)" :as "demf"}
-    {:calculate "100 * (winners ? (datum.demf > 0.5 ? 0.85 : 0.15) : datum.demf)" :as "demfp"}
+    {:calculate "100 * (datum.candidatevotes / datum.totalvotes)" :as "demp"}
+    {:calculate "winners ? (datum.demp > 50 ? 85 : 15) : datum.demp" :as "dempc"}
     {:calculate "datum.population / datum.area" :as "density"}
     ]
-   :resolve {:scale {:color "independent"}}
+   ;; :resolve {:scale {:color "independent"}}
    :vconcat [
-             
-             {:mark {:type "circle" :filled true :tooltip {:content "data"}}
-              ;; :view {:fill "black"}
-              :height 400 :width 600
-              :encoding {:x {:field "density"
-                             :type :quantitative
-                             :axis {:grid false}
-                             :scale {:type :log}}
-                         :y {:field "demfp"
-                             :type :quantitative
-                             :axis {:grid false}
-                             }
-                         :size {:field "population" :type :quantitative}
-                         :stroke {:value "gray"}
-                         :strokeWidth {:value 0.5}
-                         :strokeOpacity {:value 0.5}
-                         :color {:field "demfp" 
-                                 :title "% dem"
-                                 :type "quantitative"
-                                 :scale {:scheme "redblue"
-                                         :domain [0 100]}}}}
+             {:hconcat [
 
+                        ;; map colored by %dem
+                        {:mark {:type "geoshape"}
+                         :projection {:type "albersUsa"
+                                      :precision 0.8 ;Work around Vega bug https://github.com/vega/vega-lite/issues/9321
+                                      }
+                         :width 750
+                         :height 450
+                         :encoding {:shape {:field "geo" :type "geojson"}
+                                    :color {:field "dempc" 
+                                            :title "% dem"
+                                            :type "quantitative"
+                                            :scale {:domain [0 100]
+                                                    :range ["#DD1327" "#DDCAE0" "#1750E0" ]
+                                                    }}
+                                    :stroke {:value "gray"
+                                             :condition {:param "brush" ;This does NOT work, no idea why
+                                                         :value "orange"
+                                                         :empty false}
+                                             }
 
-             ;; % dem 
-
-             {:mark {:type "geoshape" :tooltip {:content "data"}} ;TODO trim down tooltip
-              :projection {:type "albersUsa"
-                           :precision 0.8 ;Work around Vega bug https://github.com/vega/vega-lite/issues/9321
-                           }
-              :width 750
-              :height 450
-              :encoding {:shape {:field "geo" :type "geojson"}
-                         :color {:field "demfp" 
-                                 :title "% dem"
-                                 :type "quantitative"
-                                 :scale {:scheme "redblue"
-                                         :domain [0 100]}}
+                                    :strokeWidth {:value 0.5
+                                                  :condition {:param "brush" ;This does NOT work, no idea why
+                                                              :value 12 
+                                                              :empty false}}
+                                    :strokeOpacity {:value 0.5}
+                                    :tooltip [{:field :county_name :title "county"}
+                                              {:field :state_po :title "state"}
+                                              {:field :population :type :quantitative}
+                                              {:field :density :type :quantitative}
+                                              {:field :dempc :type :quantitative :title "% dem"}
+                                              ]
+                                    }
                          }
-              }
+
+                        ;; Density/%dem scatterplot
+                        {:mark {:type "circle" :filled true}
+                         :height 400 :width 600
+                         :encoding {:x {:field "density"
+                                        :type :quantitative
+                                        :axis {:grid false}
+
+                                        :scale {:type :log}}
+                                    :y {:field "demp"
+                                        :type :quantitative
+                                        :axis {:grid false}
+                                        }
+                                    :size {:field "population"
+                                           :type :quantitative
+                                           :scale {:range [15, 800]}}
+                                    :stroke {:value "gray"}
+                                    :strokeWidth {:value 0.5
+                                                  :condition {:param "brush"
+                                                              :empty false
+                                                              :value 12}}
+                                    :strokeOpacity {:value 0.5}
+                                    :color {:field "dempc" 
+                                            :title "% dem"
+                                            :type "quantitative"
+                                            :scale {:domain [0 100]}}
+                                    :tooltip [{:field :county_name :title "county"}
+                                              {:field :state_po :title "state"}
+                                              {:field :population :type :quantitative}
+                                              {:field :density :type :quantitative}
+                                              {:field :dempc :type :quantitative :title "% dem"}
+                                              ]
+                                    }}
+                        ]}
 
              ;; Density
+             #_
              {:mark {:type "geoshape", :tooltip {:content "data"}}
               :projection {:type "albersUsa"
                            :precision 0.81
@@ -80,6 +112,37 @@
                                  :type "quantitative"
                                  :scale {:type :log}
                                  }}
+              }
+
+             ;; Just for testing – brushing works fine here
+             {:mark {:type "circle"}
+              :width 750
+              :height 450
+              :encoding  {:x {:field "population"
+                              :type :quantitative
+                              :scale {:type :log}
+                              }
+                          :y {:field "area"
+                              :type :quantitative
+                              :scale {:type :log}
+                              }
+                          :stroke {:value "gray"}
+                          :strokeWidth {:value 0.5
+                                        :condition {:param "brush"
+                                                    :empty false
+                                                    :value 12}}
+                          :strokeOpacity {:value 0.5}
+                          :color {:field "dempc" 
+                                  :title "% dem"
+                                  :type "quantitative"
+                                  :scale {:domain [0 100]}}
+                          :tooltip [{:field :county_name :title "county"}
+                                    {:field :state_po :title "state"}
+                                    {:field :population :type :quantitative}
+                                    {:field :density :type :quantitative}
+                                    {:field :dempc :type :quantitative :title "% dem"}
+                                    ]
+                          }
               }
 
 
@@ -102,7 +165,9 @@
    (expand-template
    (slurp "/opt/mt/repos/electoral/electoral.html.template")
    {:spec (json/write-str spec)}
-   :key-fn keyword)))
+   :key-fn keyword))
+  (spit "/opt/mt/repos/electoral/spec.json"
+        (with-out-str (json/pprint spec))))
 
 ;;; ⊥⊥⊤⊤ Data prep ⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤
 

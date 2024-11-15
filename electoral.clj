@@ -12,10 +12,18 @@
   {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
 
    :data {:url "data/counties.csv"}
-   :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}
+   :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2024 :step 4}}
             ;; TODO needs a better name. Clamp?
             {:name "winners" :value false :bind {:input "checkbox" }}
-            {:name "brush" :select "interval" :encodings ["x" "y"]}
+            {:name "brush_scatter"
+             :select {:type "interval" :encodings ["x" "y"]}
+             :views ["scatter"]
+             }
+            {:name "brush_map"
+             :select {:type "interval" :encodings ["longitude" "latitude"]}
+             :views ["map"]
+             }
+
             ]
    :transform
    [{:filter "datum.year == year"}
@@ -33,6 +41,7 @@
 
                         ;; map colored by %dem
                         {:mark {:type "geoshape"}
+                         :name "map"
                          :projection {:type "albersUsa"
                                       :precision 0.8 ;Work around Vega bug https://github.com/vega/vega-lite/issues/9321
                                       }
@@ -46,13 +55,13 @@
                                                     :range ["#DD1327" "#DDCAE0" "#1750E0" ]
                                                     }}
                                     :stroke {:value "gray"
-                                             :condition {:param "brush" ;This does NOT work, no idea why
+                                             :condition {:param "brush_scatter" ;This does NOT work, no idea why
                                                          :value "orange"
                                                          :empty false}
                                              }
 
                                     :strokeWidth {:value 0.5
-                                                  :condition {:param "brush" ;This does NOT work, no idea why
+                                                  :condition {:param "brush_scatter" ;This does NOT work, no idea why
                                                               :value 12 
                                                               :empty false}}
                                     :strokeOpacity {:value 0.5}
@@ -67,6 +76,7 @@
 
                         ;; Density/%dem scatterplot
                         {:mark {:type "circle" :filled true}
+                         :name "scatter"
                          :height 400 :width 600
                          :encoding {:x {:field "density"
                                         :type :quantitative
@@ -82,7 +92,7 @@
                                            :scale {:range [15, 800]}}
                                     :stroke {:value "gray"}
                                     :strokeWidth {:value 0.5
-                                                  :condition {:param "brush"
+                                                  :condition {:param "brush_scatter"
                                                               :empty false
                                                               :value 12}}
                                     :strokeOpacity {:value 0.5}
@@ -115,6 +125,7 @@
               }
 
              ;; Just for testing – brushing works fine here
+             #_
              {:mark {:type "circle"}
               :width 750
               :height 450
@@ -224,15 +235,64 @@
 
 (def years (range 2000 2024 4))
 
+;;; Ex
+#_{:county_fips 20083,
+  :totalvotes 1088,
+  :candidatevotes 217,
+  :county_name "HODGEMAN",
+  :state_po "KS",
+  :year 2000,
+  :population 1737,
+  :area 859.992}
+(def all-years (mapcat year-data years))
+
+
+
+;;; → multitool!
+(defn select-by
+  [seq prop val]
+  (u/some-thing #(= (prop %) val) seq))
+
+(defn infer-from
+  [ds source-ds & {:keys [by infer]}]
+  (let [indexed (u/index-by by source-ds)] ;TODO memoize
+    (prn (get indexed ))
+    (for [m ds]
+      (merge m
+             (select-keys (get indexed (by m)) infer)))))
+
+;;; Scrape
+
+;;; {"39039" {:totalVote 18886, "gop" 13098, "dem" 5602, "lib" 89, "ind" 55, "other" 3}...}
+{:county_fips 20083,
+  :totalvotes 1088,
+  :candidatevotes 217,
+  :county_name "HODGEMAN",
+  :state_po "KS",
+  :year 2000,
+  :population 1737,
+  :area 859.992}
+
+(defn data-2024-state
+  [state]
+  (prn :s state)
+  (as-> state state
+    (format "/opt/mt/repos/electoral/scrape/%s.json" state)
+    (voracious.formats.json/read-file state)
+    (get-in state [:races 0 :mapData])
+    (map (fn [[k d]]
+           {:county_fips (u/coerce-numeric (name k))
+            :totalvotes (:totalVote d)
+            :year 2024
+            :candidatevotes (:votes (select-by (:candidates d) :party "dem"))}) ;provisional
+         state)
+    (infer-from state all-years :by :county_fips :infer [:county_name :state_po :population :area])))
+
+(def states (ju/file-lines "/opt/mt/repos/electoral/scrape/states.txt"))
+(def data-2024 (mapcat data-2024-state states))
+
 (defn write-all-years
   []
   (csv/write-csv-file-maps
-   "/opt/mt/repos/electoral/data/counties.csv"
-   (mapcat year-data years)))
-
-
-
-
-
-
-
+   "/opt/mt/repos/electoral/docs/data/counties.csv"
+   (concat all-years data-2024)))

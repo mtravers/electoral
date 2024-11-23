@@ -1,5 +1,6 @@
 {"$schema":"https:\/\/vega.github.io\/schema\/vega-lite\/v5.json",
  "data":{"url":"data\/counties.csv"},
+ "background":"#f8f8f8",
  "params":
  [{"name":"year",
    "value":"2020",
@@ -47,15 +48,25 @@
         {"value":"gray",
          "condition":
          {"test":
-          {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]},
-          "value":"orange",
+          {"and":
+           [{"or":
+             [{"param":"brush_map", "empty":false},
+              {"param":"brush_scatter", "empty":false}]},
+            {"or":
+             [{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
+          "value":"limegreen",
           "empty":false}},
         "strokeWidth":
         {"value":0.5,
          "condition":
          {"test":
-          {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]},
-          "value":12,
+          {"and":
+           [{"or":
+             [{"param":"brush_map", "empty":false},
+              {"param":"brush_scatter", "empty":false}]},
+            {"or":
+             [{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
+          "value":3,
           "empty":false}},
         "strokeOpacity":{"value":0.5},
         "tooltip":
@@ -72,6 +83,7 @@
         {"field":"centroid[0]", "type":"quantitative"}}}]},
     {"mark":{"type":"circle", "filled":true},
      "name":"scatter",
+     "background":"lightgray",
      "height":400,
      "width":600,
      "encoding":
@@ -90,16 +102,24 @@
       {"value":"gray",
        "condition":
        {"test":
-        {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]},
-        "value":"orange",
+        {"and":
+         [{"or":
+           [{"param":"brush_map", "empty":false},
+            {"param":"brush_scatter", "empty":false}]},
+          {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
+        "value":"limegreen",
         "empty":false}},
       "strokeWidth":
       {"value":0.5,
        "condition":
        {"test":
-        {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]},
+        {"and":
+         [{"or":
+           [{"param":"brush_map", "empty":false},
+            {"param":"brush_scatter", "empty":false}]},
+          {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
         "empty":false,
-        "value":12}},
+        "value":3}},
       "strokeOpacity":{"value":0.5},
       "color":
       {"field":"dempc",

@@ -1,5 +1,5 @@
 {"$schema":"https:\/\/vega.github.io\/schema\/vega-lite\/v5.json",
- "data":{"url":"data\/counties.csv"},
+ "data":{"url":"data\/counties.csv", "name":"counties"},
  "background":"#f8f8f8",
  "params":
  [{"name":"year",
@@ -107,8 +107,7 @@
            [{"param":"brush_map", "empty":false},
             {"param":"brush_scatter", "empty":false}]},
           {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
-        "value":"limegreen",
-        "empty":false}},
+        "value":"limegreen"}},
       "strokeWidth":
       {"value":0.5,
        "condition":
@@ -118,7 +117,6 @@
            [{"param":"brush_map", "empty":false},
             {"param":"brush_scatter", "empty":false}]},
           {"or":[{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
-        "empty":false,
         "value":3}},
       "strokeOpacity":{"value":0.5},
       "color":

@@ -4,8 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<style>
 
-    <link rel="shortcut icon" href="https://vega.github.io/favicon.ico" />
+body {
+ font-family: Gill Sans;
+}
+
+</style>
 
 <title>Political Density</title>
 <meta property="og:title" content="Political Density" />
@@ -27,8 +32,7 @@
 
 <script>
     window.onload = function() {
-	const spec = {{spec}}
-;
+	const spec = {{spec}};
 
       embedExample('#geo_choropleth', spec, false);
   }
@@ -36,11 +40,45 @@
 
 
 </div>
-
   </section>
 </div>
 
-<a href="https://github.com/mtravers/electoral">Source</a>
+    <h3>What?</h3>
+
+    The country is politcally divided, and one of the key aspects of that division is the split between urban high-density populations and rural or low-density areas. This visualization shows the relationship between population density and propensity to vote Democratic.
+
+    <h3>Why?</h3>
+
+Because we are in the midst of a political disaster and doing small hacks is my way of coping. The first time Trump won, I went to hackathon and cobbled together a politically-relevant Alexa Skill, [[Call Contress]]. This time around I am updating and upgrading and old datavisualization project. I am under no illusions that this accomplishes anything other than making me feel a little better. q
+
+<h3>Details</h3>
+
+      Each circle in the scatterplot is a county.<br/>
+Size represents population; color represents degree of Republican-leaning (red) vs Demicratic-leaning (blue) votes in the specified presidential election. (3rd party votes are ignored)<br/>
+The x-axis of the scatterplot is the population density (people/miles<sup>2</sup>) on a log scale.<br/>
+The y-axis is % of the vote that went Democratic in the given presidential election.<br/>
+Try selecting a region in the scatterplot or map.
+
+
+<h3>Data Sources</h3>
+
+<ul>
+
+<li>Election results (pre-2024): <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ">MIT Election Data and Science Lab</a>
+<li>Election results (2024): TODO
+
+<li>Other: US Census <a href="https://www.census.gov/data/datasets/time-series/demo/popest/2020s-counties-total.html">Demographics</a>, <a href="https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html">Geography</a>.
+
+</ul>
+
+<h3>Credits</h3>
+Made with <a href="http://d3js.org/">Vega</a> by <a href="http://hyperphor.com">Mike Travers</a>.
+
+
+<a href="https://github.com/mtravers/electoral">Source</a>.
+
+
+
 
     <script src="https://vega.github.io/vega-lite/static/bundle.js"></script>
   </body>

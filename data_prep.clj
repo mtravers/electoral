@@ -1,8 +1,20 @@
+(ns voracious.projects.electoral.data-prep
+  (:require [clojure.data.json :as json]
+            [clojure.string :as str]
+            [org.candelbio.multitool.core :as u]
+            [org.candelbio.multitool.cljcore :as ju]
+            [voracious.formats.csv :as csv]
+
+            ))
+
+;;; Does not work
+(ju/cd "/opt/mt/repos/electoral")
+
 ;;; ⊥⊥⊤⊤ Data prep ⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤
 
-(def raw-data (csv/read-csv-file-maps "/opt/mt/repos/electoral/data/countypres_2000-2020.csv"))
+(def raw-data (csv/read-csv-file-maps "/opt/mt/repos/electoral/docs/data/countypres_2000-2020.csv"))
 
-(def pop-data (->> "/opt/mt/repos/electoral/data/co-est2023-alldata.csv"
+(def pop-data (->> "/opt/mt/repos/electoral/docs/data/co-est2023-alldata.csv"
                    csv/read-csv-file-maps
                    (map #(assoc % :fips (+ (* (:STATE %) 1000) (:COUNTY %))))
                    (map #(assoc % :population (:POPESTIMATE2020 %)))
@@ -11,7 +23,7 @@
 
 
 (def area-data (->> (csv/read-csv-file-maps
-                     "/opt/mt/repos/electoral/data/county_geo.tsv"
+                     "/opt/mt/repos/electoral/docs/data/county_geo.tsv"
                      :separator \tab)
                     (map #(assoc % :fips (:GEOID %)))
                     (map #(assoc % :area (:ALAND_SQMI %)))
@@ -62,7 +74,7 @@
 (defn infer-from
   [ds source-ds & {:keys [by infer]}]
   (let [indexed (u/index-by by source-ds)] ;TODO memoize
-    (prn (get indexed ))
+    (prn (get indexed (by (first ds))))
     (for [m ds]
       (merge m
              (select-keys (get indexed (by m)) infer)))))

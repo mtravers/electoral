@@ -2,8 +2,6 @@
   (:require [clojure.data.json :as json]
             [clojure.string :as str]
             [org.candelbio.multitool.core :as u]
-            [org.candelbio.multitool.cljcore :as ju]
-            [voracious.formats.csv :as csv]
             ))
 
 ;;; ⊥⊥⊤⊤ Vega spec ⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤

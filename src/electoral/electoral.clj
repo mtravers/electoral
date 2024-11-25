@@ -86,43 +86,59 @@
        }
 
       ;; Scatterplot Density/%dem 
-      {:mark {:type "circle" :filled true}
-       :name "scatter"
-       :background "lightgray" ;doesn't work!
-       :height 400 :width 600
-       :encoding {:x {:field "density"
-                      :type :quantitative
-                      :axis {:grid false}
-                      :scale {:type :log}}
-                  :y {:field "demp"
-                      :type :quantitative
-                      :axis {:grid false}
-                      }
-                  :size {:field "population"
-                         :type :quantitative
-                         :scale {:range [15, 800]}}
-                  :stroke {:value "gray"
-                           :condition {:test brush-test
-                                       :value brush-color
-                                       ;; :empty false
-                                       }                                             
-                           }
-                  :strokeWidth {:value 0.5
-                                :condition {:test brush-test
-                                            ;; :empty false
-                                            :value 3}}
-                  :strokeOpacity {:value 0.5}
-                  :color {:field "dempc" 
-                          :title "% dem"
-                          :type "quantitative"
-                          :scale {:domain [0 100]}}
-                  :tooltip [{:field :county_name :title "county"}
-                            {:field :state_po :title "state"}
-                            {:field :population :type :quantitative}
-                            {:field :density :type :quantitative}
-                            {:field :dempc :type :quantitative :title "% dem"}
-                            ]
-                  }}
+      {:layer 
+       [{:mark {:type "circle" :filled true}
+         :name "scatter"
+         :background "lightgray" ;doesn't work!
+         :height 400 :width 600
+         :encoding {:x {:field "density"
+                        :type :quantitative
+                        :axis {:grid false}
+                        :scale {:type :log}}
+                    :y {:field "demp"
+                        :type :quantitative
+                        :axis {:grid false}
+                        }
+                    :size {:field "population"
+                           :type :quantitative
+                           :scale {:range [15, 800]}}
+                    :stroke {:value "gray"
+                             :condition {:test brush-test
+                                         :value brush-color
+                                         ;; :empty false
+                                         }                                             
+                             }
+                    :strokeWidth {:value 0.5
+                                  :condition {:test brush-test
+                                              ;; :empty false
+                                              :value 3}}
+                    :strokeOpacity {:value 0.5}
+                    :color {:field "dempc" 
+                            :title "% dem"
+                            :type "quantitative"
+                            :scale {:domain [0 100]}}
+                    :tooltip [{:field :county_name :title "county"}
+                              {:field :state_po :title "state"}
+                              {:field :population :type :quantitative}
+                              {:field :density :type :quantitative}
+                              {:field :dempc :type :quantitative :title "% dem"}
+                              ]
+                    }}
+
+        ;; Regressionloess line. Needs to have the error weighted by population, not sure how to do that
+        #_
+        {:mark {:type :line
+                :color "green"},
+         :transform [{:regression "demp"
+                      :on "density"
+                      :method :log}]
+         :encoding
+         {:x {:field "density"
+              :type :quantitative
+              :scale {:type :log}}
+          :y {:field "demp"
+              :type :quantitative
+              }}}]}
       ]}
 
     ;; Dev only
@@ -142,11 +158,11 @@
        :height 450
        :encoding {:shape {:field "geo" :type "geojson"}
                   :fill {:field "density" 
-                          :type "quantitative"
-                          :scale {:type :log
-                                  ;; :domain {:data "counties" :field "density"}
-                                  ;; :range  {:scheme "greens"}
-                                  }}}}
+                         :type "quantitative"
+                         :scale {:type :log
+                                 ;; :domain {:data "counties" :field "density"}
+                                 ;; :range  {:scheme "greens"}
+                                 }}}}
 
 
       {:mark {:type "circle"}

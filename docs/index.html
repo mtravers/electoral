@@ -8,12 +8,12 @@
 
 body {
  font-family: Gill Sans;
+ margin: 10px;
 }
 
 </style>
 
-<title>Political Density</title>
-<meta property="og:title" content="Political Density" />
+<title>Population Density x Political Alignment</title>
 <meta property="og:locale" content="en_US" />
 
     <script>
@@ -26,15 +26,15 @@ body {
   <section class="examples">
     <div class="page-centered page-content">
   
-  <h1>Political Density</h1>
+  <h1>Population Density x Political Alignment</h1>
    
-<div id="geo_choropleth"></div>
+<div id="vega"></div>
 
 <script>
     window.onload = function() {
-	const spec = {"$schema":"https:\/\/vega.github.io\/schema\/vega-lite\/v5.json","data":{"url":"data\/counties.csv","name":"counties"},"background":"#f8f8f8","params":[{"name":"year","value":"2020","bind":{"input":"range","min":2000,"max":2020,"step":4}},{"name":"winners","value":false,"bind":{"input":"checkbox"}},{"name":"brush_scatter","select":{"type":"interval","encodings":["x","y"]},"views":["scatter"]},{"name":"brush_map","select":{"type":"interval","encodings":["longitude","latitude"]},"views":["map"]}],"transform":[{"filter":"datum.year == year"},{"lookup":"county_fips","from":{"data":{"url":"data\/us-10m.json","format":{"type":"topojson","feature":"counties"}},"key":"id"},"as":"geo"},{"calculate":"100 * (datum.candidatevotes \/ datum.totalvotes)","as":"demp"},{"calculate":"winners ? (datum.demp > 50 ? 85 : 15) : datum.demp","as":"dempc"},{"calculate":"datum.population \/ datum.area","as":"density"},{"calculate":"geoCentroid(null,datum.geo)","as":"centroid"}],"vconcat":[{"hconcat":[{"projection":{"type":"albersUsa","precision":0.8},"width":750,"height":450,"layer":[{"mark":{"type":"geoshape"},"encoding":{"shape":{"field":"geo","type":"geojson"},"color":{"field":"dempc","title":"% dem","type":"quantitative","scale":{"domain":[0,100],"range":["#DD1327","#DDCAE0","#1750E0"]}},"stroke":{"value":"gray","condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":"limegreen","empty":false}},"strokeWidth":{"value":0.5,"condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":3,"empty":false}},"strokeOpacity":{"value":0.5},"tooltip":[{"field":"county_name","title":"county"},{"field":"state_po","title":"state"},{"field":"population","type":"quantitative"},{"field":"density","type":"quantitative"},{"field":"dempc","type":"quantitative","title":"% dem"}]}},{"name":"map","mark":{"type":"circle","opacity":0},"encoding":{"latitude":{"field":"centroid[1]","type":"quantitative"},"longitude":{"field":"centroid[0]","type":"quantitative"}}}]},{"mark":{"type":"circle","filled":true},"name":"scatter","background":"lightgray","height":400,"width":600,"encoding":{"x":{"field":"density","type":"quantitative","axis":{"grid":false},"scale":{"type":"log"}},"y":{"field":"demp","type":"quantitative","axis":{"grid":false}},"size":{"field":"population","type":"quantitative","scale":{"range":[15,800]}},"stroke":{"value":"gray","condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":"limegreen"}},"strokeWidth":{"value":0.5,"condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":3}},"strokeOpacity":{"value":0.5},"color":{"field":"dempc","title":"% dem","type":"quantitative","scale":{"domain":[0,100]}},"tooltip":[{"field":"county_name","title":"county"},{"field":"state_po","title":"state"},{"field":"population","type":"quantitative"},{"field":"density","type":"quantitative"},{"field":"dempc","type":"quantitative","title":"% dem"}]}}]}]};
+	const spec = {"$schema":"https:\/\/vega.github.io\/schema\/vega-lite\/v5.json","data":{"url":"data\/counties.csv","name":"counties"},"background":"#f8f8f8","params":[{"name":"year","value":"2020","bind":{"input":"range","min":2000,"max":2020,"step":4}},{"name":"winners","value":false,"bind":{"input":"checkbox"}},{"name":"brush_scatter","select":{"type":"interval","encodings":["x","y"]},"views":["scatter"]},{"name":"brush_map","select":{"type":"interval","encodings":["longitude","latitude"]},"views":["map"]}],"transform":[{"filter":"datum.year == year"},{"lookup":"county_fips","from":{"data":{"url":"data\/us-10m.json","format":{"type":"topojson","feature":"counties"}},"key":"id"},"as":"geo"},{"calculate":"100 * (datum.candidatevotes \/ datum.totalvotes)","as":"demp"},{"calculate":"winners ? (datum.demp > 50 ? 85 : 15) : datum.demp","as":"dempc"},{"calculate":"datum.population \/ datum.area","as":"density"},{"calculate":"geoCentroid(null,datum.geo)","as":"centroid"}],"vconcat":[{"hconcat":[{"projection":{"type":"albersUsa","precision":0.8},"width":750,"height":450,"layer":[{"mark":{"type":"geoshape"},"encoding":{"shape":{"field":"geo","type":"geojson"},"color":{"field":"dempc","title":"% dem","type":"quantitative","scale":{"domain":[0,100],"range":["#DD1327","#DDCAE0","#1750E0"]}},"stroke":{"value":"gray","condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":"limegreen","empty":false}},"strokeWidth":{"value":0.5,"condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":3,"empty":false}},"strokeOpacity":{"value":0.5},"tooltip":[{"field":"county_name","title":"county"},{"field":"state_po","title":"state"},{"field":"population","type":"quantitative"},{"field":"density","type":"quantitative"},{"field":"dempc","type":"quantitative","title":"% dem"}]}},{"name":"map","mark":{"type":"circle","opacity":0},"encoding":{"latitude":{"field":"centroid[1]","type":"quantitative"},"longitude":{"field":"centroid[0]","type":"quantitative"}}}]},{"layer":[{"mark":{"type":"circle","filled":true},"name":"scatter","background":"lightgray","height":400,"width":600,"encoding":{"x":{"field":"density","type":"quantitative","axis":{"grid":false},"scale":{"type":"log"}},"y":{"field":"demp","type":"quantitative","axis":{"grid":false}},"size":{"field":"population","type":"quantitative","scale":{"range":[15,800]}},"stroke":{"value":"gray","condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":"limegreen"}},"strokeWidth":{"value":0.5,"condition":{"test":{"and":[{"or":[{"param":"brush_map","empty":false},{"param":"brush_scatter","empty":false}]},{"or":[{"param":"brush_map"},{"param":"brush_scatter"}]}]},"value":3}},"strokeOpacity":{"value":0.5},"color":{"field":"dempc","title":"% dem","type":"quantitative","scale":{"domain":[0,100]}},"tooltip":[{"field":"county_name","title":"county"},{"field":"state_po","title":"state"},{"field":"population","type":"quantitative"},{"field":"density","type":"quantitative"},{"field":"dempc","type":"quantitative","title":"% dem"}]}}]}]}]};
 
-      embedExample('#geo_choropleth', spec, false);
+      embedExample('#vega', spec, false);
   }
 </script>
 
@@ -45,16 +45,16 @@ body {
 
     <h3>What?</h3>
 
-    The country is politcally divided, and one of the key aspects of that division is the split between urban high-density populations and rural or low-density areas. This visualization shows the relationship between population density and propensity to vote Democratic.
+    The country is divided, and one way to understand that division is a split between city dwellers and low-density areas. This visualization shows the relationship between population density and propensity to vote Democratic.
 
     <h3>Why?</h3>
 
-Because we are in the midst of a political disaster and doing small hacks is my way of coping. The first time Trump won, I went to hackathon and cobbled together a politically-relevant Alexa Skill, [[Call Contress]]. This time around I am updating and upgrading and old datavisualization project. I am under no illusions that this accomplishes anything other than making me feel a little better. q
+Because we are in the midst of a political disaster and doing small hacks is my way of coping. The first time Trump won, I went to hackathon and cobbled together a somewhat politically-relevant Alexa skill, <a href="https://hyperphor.com/ammdi/Call-Congress">Call Congress</a>. I am under no illusions that this accomplishes anything other than making me feel a little better. 
 
 <h3>Details</h3>
 
       Each circle in the scatterplot is a county.<br/>
-Size represents population; color represents degree of Republican-leaning (red) vs Demicratic-leaning (blue) votes in the specified presidential election. (3rd party votes are ignored)<br/>
+Size represents population; color represents degree of Republican-leaning (red) vs Democratic-leaning (blue) votes in the specified presidential election. (3rd party votes are ignored)<br/>
 The x-axis of the scatterplot is the population density (people/miles<sup>2</sup>) on a log scale.<br/>
 The y-axis is % of the vote that went Democratic in the given presidential election.<br/>
 Try selecting a region in the scatterplot or map.
@@ -73,7 +73,7 @@ Try selecting a region in the scatterplot or map.
 </ul>
 
 <h3>Credits</h3>
-Made with <a href="http://d3js.org/">Vega</a> by <a href="http://hyperphor.com">Mike Travers</a>.
+Made with <a href="https://vega.github.io/vega-lite/">Vega-Lite</a> by <a href="http://hyperphor.com">Mike Travers</a>.
 
 
 <a href="https://github.com/mtravers/electoral">Source</a>.

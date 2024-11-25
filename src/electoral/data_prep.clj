@@ -223,31 +223,73 @@
               (format "/opt/mt/repos/electoral/scrape/%s.json" state)
               (vjson/read-file state))
         mapdata (get-in raw [:races 0 :mapData])
-        city->county (fn [city-name]
-                       (prn :city city-name)
-                       (-> (u/walk-collect (fn [x]
-                                             (when (= (or (:name x) (:NAME x))
-                                                      (str/replace (str/upper-case city-name) "-" " ")) x))
-                                           raw)
-                           first
-                           :COUNTY))]
-        ;; Getting punchy and can't think of good var names
-        (as-> (group-by (comp city->county name :name) (vals (u/self-label :name mapdata))) blah
-          ;; map of county names to seq of city element
-          (do (prn :poop (count blah) (first blah)))
-          (u/map-values (fn [cities] (reduce +& (map (fn [city]
-                                                       (prn :city city)
-                                                       [(:totalVote city) (:votes (select-by (:candidates city) :party "dem"))])
-                                                     cities)))
-                        blah)
-          (do (prn :blah blah) blah)
-          (map (fn [[k [total dem]]]
-                 {:county_fips (lookup-fips state-name k) ;TODO case issues
-                  :totalvotes total
-                  :year 2024
-                  :candidatevotes dem})
-               blah)
-          (infer-from blah all-years :by :county_fips :infer [:county_name :state_po :population :area]))))
+        city->county (memoize
+                      (fn [city-name]
+                        (prn :city city-name)
+                        (let [city-name (str/replace (str/upper-case city-name) "-" " ")]
+                          (-> (u/walk-collect (fn [x]
+                                                (when (= (or (:name x) (:NAME x))
+                                                         city-name) x))
+                                              raw)
+                              first
+                              :COUNTY))))]
+    ;; Getting punchy and can't think of good var names
+    (as-> (group-by (comp city->county name :name) (vals (u/self-label :name mapdata))) blah
+      ;; map of county names to seq of city element
+      (do (prn :poop (count blah) (first blah)))
+      (u/map-values (fn [cities] (reduce +& (map (fn [city]
+                                                   (prn :city city)
+                                                   [(:totalVote city) (:votes (select-by (:candidates city) :party "dem"))])
+                                                 cities)))
+                    blah)
+      (do (prn :blah blah) blah)
+      (map (fn [[k [total dem]]]
+             {:county_fips (lookup-fips state-name k) ;TODO case issues
+              :totalvotes total
+              :year 2024
+              :candidatevotes dem})
+           blah)
+      (infer-from blah all-years :by :county_fips :infer [:county_name :state_po :population :area]))))
+
+
+(defn =uncased
+  [s1 s2]
+  (and s1 s2 (= (str/lower-case s1) (str/lower-case s2))))
+  
+
+(defn rejigger-maine
+  [state-name]
+  (let [raw (as-> state-name state
+              (format "/opt/mt/repos/electoral/scrape/%s.json" state)
+              (vjson/read-file state))
+        mapdata (get-in raw [:races 0 :mapData])
+        city->county (memoize
+                      (fn [city-name]
+                        (prn :city city-name)
+                        (let [city-name (str/replace (str/upper-case city-name) "-" " ")]
+                          (-> (u/walk-collect (fn [x]
+                                                (when (= (or (:name x) (:NAME x))
+                                                         city-name) x))
+                                              raw)
+                              first
+                              :COUNTY))))]
+    ;; Getting punchy and can't think of good var names
+    (as-> (group-by (comp city->county name :name) (vals (u/self-label :name mapdata))) blah
+      ;; map of county names to seq of city element
+      (do (prn :poop (count blah) (first blah)))
+      (u/map-values (fn [cities] (reduce +& (map (fn [city]
+                                                   (prn :city city)
+                                                   [(:totalVote city) (:votes (select-by (:candidates city) :party "dem"))])
+                                                 cities)))
+                    blah)
+      (do (prn :blah blah) blah)
+      (map (fn [[k [total dem]]]
+             {:county_fips (lookup-fips state-name k) ;TODO case issues
+              :totalvotes total
+              :year 2024
+              :candidatevotes dem})
+           blah)
+      (infer-from blah all-years :by :county_fips :infer [:county_name :state_po :population :area]))))
         
 ;;; To rejigger
 

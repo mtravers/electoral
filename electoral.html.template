@@ -64,7 +64,8 @@ Try selecting a region in the scatterplot or map.
 
 <ul>
 
-<li>Election results (pre-2024): <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ">MIT Election Data and Science Lab</a>
+<li>Election results (pre-2024): <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VOQCHQ">MIT Election Data and Science Lab</a> <small>MIT Election Data and Science Lab, 2018, "County Presidential Election Returns 2000-2020", https://doi.org/10.7910/DVN/VOQCHQ, Harvard Dataverse, V13, UNF:6:GILlTHRWH0LbH2TItBsb2w== [fileUNF]</small>
+
 <li>Election results (2024): Scraped from <a href="https://decisiondeskhq.com/">Decision Desk HQ</a>
 
 <li>Other: US Census <a href="https://www.census.gov/data/datasets/time-series/demo/popest/2020s-counties-total.html">Demographics</a>, <a href="https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html">Geography</a>.

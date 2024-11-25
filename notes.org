@@ -31,9 +31,16 @@ https://vega.github.io/vega-lite/examples/geo_choropleth.html
 
 Compile 
 
-serve.sh 2203 . electoral.html
+cd docs
+serve.sh 2203 . 
 
 * Random
 
 THe hover here is pretty cool
 https://vega.github.io/vega-lite/examples/interactive_global_development.html
+
+* Ideas
+** more data, eg, income or other demographics
+** clustering counties and use cheatmap to display
+  need mor dimensions. Include lat/long and then geo proximity becomes an input to clustering
+  Define the 10 non-contiguous nations

@@ -54,7 +54,7 @@
               {"param":"brush_scatter", "empty":false}]},
             {"or":
              [{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
-          "value":"limegreen",
+          "value":"black",
           "empty":false}},
         "strokeWidth":
         {"value":0.5,
@@ -110,7 +110,7 @@
               {"param":"brush_scatter", "empty":false}]},
             {"or":
              [{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
-          "value":"limegreen"}},
+          "value":"black"}},
         "strokeWidth":
         {"value":0.5,
          "condition":
@@ -122,7 +122,7 @@
             {"or":
              [{"param":"brush_map"}, {"param":"brush_scatter"}]}]},
           "value":3}},
-        "strokeOpacity":{"value":0.5},
+        "strokeOpacity":{"value":1},
         "color":
         {"field":"dempc",
          "title":"% dem",

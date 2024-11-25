@@ -6,7 +6,7 @@
 
 ;;; ⊥⊥⊤⊤ Vega spec ⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤⊥⊥⊤⊤
 
-(def brush-color "limegreen")
+(def brush-color "black")
 
 ;;; So verbose and weird I'm abstracting it
 (def brush-test
@@ -112,7 +112,7 @@
                                   :condition {:test brush-test
                                               ;; :empty false
                                               :value 3}}
-                    :strokeOpacity {:value 0.5}
+                    :strokeOpacity {:value 1}
                     :color {:field "dempc" 
                             :title "% dem"
                             :type "quantitative"

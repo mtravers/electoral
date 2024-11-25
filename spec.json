@@ -4,7 +4,7 @@
  "params":
  [{"name":"year",
    "value":"2020",
-   "bind":{"input":"range", "min":2000, "max":2024, "step":4}},
+   "bind":{"input":"range", "min":2000, "max":2020, "step":4}},
   {"name":"winners", "value":false, "bind":{"input":"checkbox"}},
   {"name":"brush_scatter",
    "select":{"type":"interval", "encodings":["x", "y"]},

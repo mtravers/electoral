@@ -18,7 +18,7 @@
   {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
    :data {:url "data/counties.csv" :name "counties"}
    :background "#f8f8f8"
-   :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2024 :step 4}}
+   :params [{:name "year" :value "2020" :bind {:input "range" :min 2000 :max 2020 :step 4}}
             ;; TODO needs a better name. Clamp?
             {:name "winners" :value false :bind {:input "checkbox" }}
             {:name "brush_scatter"

@@ -1,4 +1,4 @@
-(ns voracious.projects.electoral
+(ns electoral.electoral
   (:require [clojure.data.json :as json]
             [clojure.string :as str]
             [org.candelbio.multitool.core :as u]

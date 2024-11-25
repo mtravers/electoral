@@ -1,10 +1,10 @@
-(ns voracious.projects.electoral.data-prep
+(ns electoral.data-prep
   (:require [clojure.data.json :as json]
             [clojure.string :as str]
             [org.candelbio.multitool.core :as u]
             [org.candelbio.multitool.cljcore :as ju]
             [voracious.formats.csv :as csv]
-
+            [voracious.formats.json :as vjson]
             ))
 
 ;;; Does not work
@@ -93,7 +93,7 @@
 
 ;;; Argh, some files use county name instead of fip as keyword, just to make my life hell
 (def state-abbrev
-  (->> (voracious.formats.json/read-file "/opt/mt/repos/electoral/scrape/states.json")
+  (->> (vjson/read-file "/opt/mt/repos/electoral/scrape/states.json")
       (map #(update % :name (fn [n] (-> n
                                         str/lower-case
                                         (str/replace " " "-")))))
@@ -102,9 +102,9 @@
 ;;; {["VA" "PRINCE WILLIAM"] {:county_fips 51153. ...}
 (def fips-index
   (u/index-by (juxt :state_po :county_name)
-              all-data))
+              all-years))
 
-(defn lookup-fips
+(u/defn-memoized lookup-fips
   [state-name county-name]
   (get-in fips-index [[(get-in state-abbrev [state-name :abbreviation])
                        (str/upper-case county-name)]
@@ -115,7 +115,7 @@
   (prn :s state-name)
   (as-> state-name state
     (format "/opt/mt/repos/electoral/scrape/%s.json" state)
-    (voracious.formats.json/read-file state)
+    (vjson/read-file state)
     (get-in state [:races 0 :mapData])
     (map (fn [[k d]]
            {:county_fips (or (u/coerce-numeric-hard (name k))
@@ -140,8 +140,9 @@
 
 ;;; County count
 
-(def x (group-by :state_po all-data))
+(def x (group-by :state_po all-years))
 (def x2024 (group-by :state_po data-2024))
+#_
 (u/map-values (fn [vs] (count (distinct (map :county_fips vs)))) x)
 {"WI" 72,
  "SC" 46,
@@ -198,6 +199,7 @@
 
 ;;; [all 24] – filterd by difference
 
+#_
 ([nil 41]
  ["AK" 41]
  ["NH" [10 6]]
@@ -213,15 +215,13 @@
 
 ;;; RI and other NE states seem to have data organized by city and needs to be rejiggered
 
-
 (def +& (u/vectorize +))
-
 
 (defn rejigger
   [state-name]
   (let [raw (as-> state-name state
               (format "/opt/mt/repos/electoral/scrape/%s.json" state)
-              (voracious.formats.json/read-file state))
+              (vjson/read-file state))
         mapdata (get-in raw [:races 0 :mapData])
         city->county (fn [city-name]
                        (prn :city city-name)
@@ -267,3 +267,8 @@
   (csv/write-csv-file-maps
    "/opt/mt/repos/electoral/docs/data/counties.csv"
    all-data-plus))  
+
+#_
+(write-all-years)
+
+;;; Something is really slow
